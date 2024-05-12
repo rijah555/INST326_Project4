@@ -1,0 +1,76 @@
+
+
+    def search_notes(self, keyword):
+        results = []
+        for item in self.notebook:
+            if keyword.lower() in item.note_text.lower() or keyword.lower() in item.note_title.lower():
+                results.append(item)
+        if results:
+            search_result_window = tk.Toplevel()
+            search_result_window.title("Search Results")
+            for result in results:
+                result_label = tk.Label(search_result_window, text=f"Title: {result.note_title}, Text: {result.note_text}")
+                result_label.pack()
+        else:
+            messagebox.showinfo("Search Results", "No matching notes found.")
+
+    search_button = tk.Button(button_label, text='Search Notes', command=lambda: main_window.search_notes(search_entry.get()))
+    search_button.grid(padx=10, pady=10, row=9, column=0)
+
+    search_entry = tk.Entry(button_label)
+    search_entry.grid(padx=10, pady=10, row=9, column=1)  
+    
+    new_note.config(font=("Arial", 12), bg="lightblue", fg="black")
+    open_note.config(font=("Arial", 12), bg="lightgreen", fg="black")
+    save_note.config(font=("Arial", 12), bg="lightcoral", fg="black")
+    edit_note.config(font=("Arial", 12), bg="lightyellow", fg="black")
+
+    main_window.config(bg="white")
+
+    main_window.config(bg="lightgray")
+    
+    class MainWindow(tk.Tk): 
+        def __init__(self):
+            super().__init__()
+            self.geometry("1400x800")
+            self.title('Notebook')
+            self.notebook = []
+
+
+        def delete(self, note_or_snippet):
+            # Open file path
+            filepath = filedialog.askopenfilename(initialdir="/Users/baihanliang/INST326-0104",
+                                                   filetypes=[("Allowed Types", "*.txt *.json *.csv *.xml")])
+            try: 
+                file = open(filepath, "r")
+            except FileNotFoundError:
+                print("It seems you didn't enter a valid file. Please try again.")
+
+            file_list = file.read()
+            file.close()
+
+            if note_or_snippet == "note":
+                for note in self.notebook:
+                    if note.note_title in file_list:
+                        self.notebook.remove(note)
+                        messagebox.showinfo("Note Deleted", f"Note '{note.note_title}' has been deleted.")
+                        break
+            elif note_or_snippet == "snippet":
+                for snippet in self.notebook:
+                    if snippet.snippet_title in file_list:
+                        self.notebook.remove(snippet)
+                        messagebox.showinfo("Code Snippet Deleted", f"Code Snippet '{snippet.snippet_title}' has been deleted.")
+                        break
+
+
+    # Main execution
+    if __name__ == '__main__':
+        # Create a notebook
+        main_window = MainWindow()
+
+
+        delete_note = tk.Button(button_label, text='delete note', command=partial(main_window.delete, "note"))
+        delete_note.grid(padx=10, pady=10, row=10, column=0)
+
+        delete_snippet = tk.Button(button_label, text='delete code snippet', command=partial(main_window.delete, "snippet"))
+        delete_snippet.grid(padx=10, pady=10, row=10, column=1)
